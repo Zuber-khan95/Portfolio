@@ -1,0 +1,16 @@
+body{
+    background-color: #F4F6F7 !important;
+    color:#212121 !important;
+    padding:10px !important;
+font-family: Helvetica, sans-serif;
+}
+Button{
+    background-color:#1565c0 !important;
+    color:white !important;
+}
+.card{
+    background-color: #F4F6F7 !important; 
+}
+.para{
+    font-weight: 500 !important;
+}

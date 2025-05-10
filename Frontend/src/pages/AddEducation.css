@@ -1,0 +1,14 @@
+body{
+    background-color: #F4F6F7 !important;
+    color:#212121 !important;
+    padding:10px !important;
+}
+button{
+    background-color:#1565c0 !important;
+    color:#212121 !important;
+}
+.Form{
+    max-width:fit-content !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
