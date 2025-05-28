@@ -8,7 +8,10 @@ const columns = [
   { field: 'name', headerName: 'Customer Name', width: 180 },
   { field: 'organisation', headerName: 'Organisation Name', width: 250 },
   { field: 'mobileNo', headerName: 'Contact Number', width: 180 },
+  { field: 'email', headerName: 'Email of Customer', width: 180},
   { field: 'message', headerName: 'Message by Customer', width: 380},
+  
+
 
 ];
 
@@ -46,7 +49,7 @@ if(response.data)
         organisation: item.organisation,
         mobileNo: item.mobileNo,
         message: item.message,
-       
+        email: item.emailOfOwner,
       }));
       setRows(mappedRows);
     }

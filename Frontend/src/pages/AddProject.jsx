@@ -1,4 +1,4 @@
-import {useState} from 'react'
+import {useState,useEffect} from 'react'
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import axios from 'axios';
@@ -6,11 +6,13 @@ axios.defaults.withCredentials = true;
 import {useNavigate} from 'react-router-dom'
 import DatePicker from 'react-date-picker'
 axios.defaults.withCredentials=true;
+import { useSelector } from 'react-redux';
+import { handleAxiosError } from '../../handleAxiorError';
 // import './AddProject.css'
 
 export default function AddProject()
 {
-  
+  const user=useSelector((state)=>state.auth.user);
   let [FormData,SetFormData]=useState({
     title:"",
     description:"",
@@ -19,9 +21,19 @@ export default function AddProject()
     endingDate:""
   });
 
-  let [flashMsg,setFlashMsg]=useState({success:"",error:""});
+  let [flashMessage,setFlashMessage]=useState({success:"",error:""});
 
   const navigate=useNavigate();
+
+  useEffect(()=>{
+if(flashMessage && flashMessage.success || flashMessage.error)
+{
+  setTimeout(()=>{
+ setFlashMessage({success:"",error:""});
+  },4000);
+ 
+}
+  },[flashMessage]);
 
   let HandleFormData=(event)=>{
     SetFormData((CurrData)=>{
@@ -29,14 +41,12 @@ export default function AddProject()
     })};
 
     let HandleForm=async(event)=>{
-      console.log(FormData);
+       event.preventDefault();
       try{
-       
-      const response=await axios.post('http://localhost:8080/project/new',FormData);
-      event.preventDefault();
+      const response=await axios.post(`http://localhost:8080/project/new/${user.userId}`,FormData);
       if(response.data.state=="success")
       {
-        setFlashMsg({success:"Successfully Added Project"});
+        setFlashMessage({success:"Successfully Added Project"});
         SetFormData({
           title:"",
           description:"",
@@ -44,23 +54,41 @@ export default function AddProject()
           startingDate:"",
           endingDate:""
         });
-        setTimeout(()=>{setFlashMsg({success:""});},4000);
         setTimeout(()=>{navigate("/");},4000);
       }
   
     }
       catch(err)
       {
-    console.log(err);
-    setFlashMsg({error:"Already existed project."});
-    setTimeout(()=>{setFlashMsg({error:""});},4000);
+    const errorMsg=handleAxiosError(err);
+    if(errorMsg.status===403)
+    {
+   setFlashMessage({error:"Only Admin can Add the project."});
+    }
+  if(errorMsg.status===404)
+      {
+ setFlashMessage({error:"User not found so unable to add project"});
+      }
+       if(errorMsg.status===500)
+  {
+    setFlashMessage({error:"Server Error or Unable to add project due to existance of project name"});
+  }
+      if(errorMsg==="Network Error")
+             {
+ setFlashMessage({error:"Network Error, No response from server"});
+      }
+     if(errorMsg==="Unexpected error occured")
+  {
+ setFlashMessage({error:'Need to logged in first as Admin to do this'});
+ }
+  
       }
     };
 
   return (
     <div className="Form">
-        {flashMsg.success?<div style={{color:"green"}}>{flashMsg.success}</div>:
-        <div style={{color:"red"}}>{flashMsg.error}</div>}
+  {flashMessage.success && <div className="alert alert-success">{flashMessage.success}</div>}
+  {flashMessage.error && <div className="alert alert-danger">{flashMessage.error}</div>}
        <h3 style={{textAlign:"",color:"green"}}>Add Your Project from here..</h3>
   <div className="AddProject">
    

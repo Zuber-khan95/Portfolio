@@ -1,7 +1,8 @@
 import express from 'express'
 const router=express.Router();
 import Project from '../Model/project.js';
-import isAdmin from '../middleware.js';
+import {isAdmin} from '../middleware.js'
+import User from '../Model/user.js';
 
 router.get("/",async(req,res,next)=>{
     try{
@@ -14,12 +15,18 @@ res.json({data});
     }
 });
 
-router.post("/new",async(req,res,next)=>{
-console.log(req.body);
+router.post("/new/:userId",isAdmin,async(req,res,next)=>{
+    const {userId}=req.params;
     try{
-        let newProject=new Project(req.body);
+        const user=await User.findById(userId);
+        if(!user){
+            throw new Error(404,"User not found");
+        }
+        const newProject=new Project(req.body);
+        user.projects.push(newProject._id);
+        await user.save();
         await newProject.save();
-        res.json({state:"success"});
+        res.json({status:200,state:"success", message:"Project added successfully"});
     }
     catch(err)
     {
@@ -27,11 +34,28 @@ console.log(req.body);
     }
 });
 
-router.delete("/:id",async(req,res,next)=>{
-let {id}=req.params;
+router.delete("/:id/:userId",isAdmin,async(req,res,next)=>{
+let {id,userId}=req.params;
     try{
+        const project=await Project.findById(id);
+        if(!project){
+            throw new Error(404,"Project not found");
+        }
+        const user=await User.findById(userId);
+        if(!user){
+            throw new Error(404,"User not found");
+        }
+        const index=user.projects.indexOf(project._id);
+        console.log(index,project,user);
+        if(index>-1){
+            user.projects.splice(index,1);
+        }
+        else{
+            throw new Error(404,"Project not found in user's project list");
+        }
+        await user.save();
       await Project.findByIdAndDelete(id);
-      res.json({state:"success"});
+      res.json({status:200,state:"success" ,message:"Project deleted successfully"});
     }
     catch(err)
     {

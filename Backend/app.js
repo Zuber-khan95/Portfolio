@@ -1,9 +1,9 @@
 import express from 'express';
 import mongoose from 'mongoose';
 const app=express();
-import session from 'express-session'
-import passport from 'passport';
-import localStrategy from 'passport-local'
+// import session from 'express-session'
+// import passport from 'passport';
+// import localStrategy from 'passport-local'
 import cors from 'cors';
 import 'dotenv/config';
 app.use(cors(
@@ -38,42 +38,42 @@ app.use((req,res,err,next)=>{
 })
 
 
-app.use(session(
-    {
-        secret:process.env.SECRET||"mysuperkey",
-        saveUninitialized:true,
-        resave:false,
-        Cookie:{
-           expire:Date.now()+3*24*60*60*1000,
-           maxAge:3*24*60*60*1000,
-           httpOnly:true  
-        }
+// app.use(session(
+//     {
+//         secret:process.env.SECRET||"mysuperkey",
+//         saveUninitialized:true,
+//         resave:false,
+//         Cookie:{
+//            expire:Date.now()+3*24*60*60*1000,
+//            maxAge:3*24*60*60*1000,
+//            httpOnly:true  
+//         }
 
-    }
-));
-app.use(passport.initialize());
-app.use(passport.session());
-passport.use(new localStrategy(User.authenticate()));
+//     }
+// ));
+// app.use(passport.initialize());
+// app.use(passport.session());
+// passport.use(new localStrategy(User.authenticate()));
 
 
 
-  passport.serializeUser(function(User, cb) {
-    process.nextTick(function() {
-      return cb(null, User.id);
-    });
-  });
+  // passport.serializeUser(function(User, cb) {
+  //   process.nextTick(function() {
+  //     return cb(null, User.id);
+  //   });
+  // });
   
-  passport.deserializeUser(async function(id, cb) {
-    try {
-      const user = await User.findById(id).exec(); 
-      if (!user) {
-        return cb(new Error('User not found'));
-      }
-      return cb(null, user);
-    } catch (err) {
-      return cb(err);
-    }
-  });
+  // passport.deserializeUser(async function(id, cb) {
+  //   try {
+  //     const user = await User.findById(id).exec(); 
+  //     if (!user) {
+  //       return cb(new Error('User not found'));
+  //     }
+  //     return cb(null, user);
+  //   } catch (err) {
+  //     return cb(err);
+  //   }
+  // });
   
   
 app.use("/",user);

@@ -1,14 +1,19 @@
 import mongoose from 'mongoose'
-import PassportLocalMongoose from 'passport-local-mongoose';
-import Education from './education.js';
-import Project from './project.js';
-
 
 const userSchema=mongoose.Schema({
     email:{
         type:String,
         required:true,
         unique:true
+    },
+    password:{
+        type:String,
+        required:true
+    },
+    role:{
+        type:String,
+        enum:["admin","user"],
+        default:"user"
     },
     educations:[
         {
@@ -24,7 +29,7 @@ const userSchema=mongoose.Schema({
     ]
 });
 
-userSchema.plugin(PassportLocalMongoose);
+
 
 const User=mongoose.model("User",userSchema);
 export default User;

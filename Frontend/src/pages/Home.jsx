@@ -7,21 +7,34 @@ import './Home.css'
 import { FaGithub } from "react-icons/fa";
 import { SiInstagram } from "react-icons/si";
 import { TfiLinkedin } from "react-icons/tfi";
+import { handleAxiosError } from '../../handleAxiorError.js'
+import { useSelector } from 'react-redux';
 export default function Home()
 {
+  const user = useSelector((state) => state.auth.user);
     let [educationData,setEducationData]=useState([]);
     let [projectData,setProjectData]=useState([]);
-      let [flashMsg,setFlashMsg]=useState({
+      let [flashMessage,setFlashMessage]=useState({
         success:"",
-        error:""
-      })
+        error:""});
     
       const navigate=useNavigate();
     useEffect(()=>{
 getEducationData();
 getProjectData();
-
+// getUserData();
     },[educationData]);
+
+    useEffect(()=>{
+      if(flashMessage && flashMessage.success ||flashMessage.error)
+      {
+      setTimeout(()=>{
+      setFlashMessage({success:"",error:""});
+    },4000);
+      }
+   
+    },[flashMessage]);
+
 
 
     let getEducationData=async()=>{
@@ -44,59 +57,97 @@ getProjectData();
 
  let handleDeleteEducation=async(itemId)=>{
   try{
-    let response=await axios.delete(`http://localhost:8080/education/${itemId}`);
+    const response=await axios.delete(`http://localhost:8080/education/${itemId}/${user.userId}`);
     console.log(response.data.state);
     if(response.data.state=="success"){
-      setFlashMsg({success:"Successfully Education deleted"});
-      setTimeout(()=>{setFlashMsg({success:""});},4000);
+      setFlashMessage({success:"Successfully Education deleted"});
 }
 }  
 catch(err){
-setFlashMsg({error:"Unable to delete ,Only Admin can delete."});
-  setTimeout(()=>{setFlashMsg({error:""});},4000);
-    }
+
+  const errorMsg=handleAxiosError(err);
+
+    if(errorMsg.status===403)
+  {
+    setFlashMessage({error:"Only Admin can delete the education"});
   }
+
+    if(errorMsg.status===404)
+  {
+    setFlashMessage({error:"Education or User not found"});
+  }
+  if(errorMsg.status===500)
+  {
+    setFlashMessage({error:"Server Error or Unable to delete education"});
+  }
+  if(errorMsg==="Network Error")
+  {
+ setFlashMessage({error:"Network Error, No response from server"});
+ }
+ if(errorMsg==="Unexpected error occured")
+  {
+ setFlashMessage({error:'Need to logged in first as Admin to do this'});
+ }
+    }
+  };
 
  let handleDeleteProject=async(itemId)=>{
   try{
-    let response=await axios.delete(`http://localhost:8080/project/${itemId}`);
+    let response=await axios.delete(`http://localhost:8080/project/${itemId}/${user.userId}`);
     if(response.data.state=="success"){
-      setFlashMsg({success:"Successfully Project deleted"});
-      setTimeout(()=>{setFlashMsg({success:""});},4000);
+      setFlashMessage({success:"Successfully Project deleted"});
+ 
 }
 }  
 catch(err){
-setFlashMsg({error:"Unable to delete ,Only Admin can delete."});
-  setTimeout(()=>{setFlashMsg({error:""});},4000);
-    }
+  const errorMsg=handleAxiosError(err);
+  if(errorMsg.status===403)
+{
+  setFlashMessage({error:"Only Admin is allowed to do this"});
+}
+  if(errorMsg.status===404)
+{
+  setFlashMessage({error:"Project or User not found so unable to delete"});
+}
+ if(errorMsg.status===500)
+  {
+    setFlashMessage({error:"Server Error or Unable to delete education"});
   }
-  
-
-      let handleLogout=async()=>{
-        try{
-          const response=await axios.delete('http://localhost:8080/logout');
-          console.log(response.data.state);
-        }
-        
-        catch(err){
-          console.log(err);
-        }
+if(errorMsg==="Network Error")
+{
+   setFlashMessage({error:"Network Error, no response from server side"}); 
+}
+if(errorMsg==="Unexpected error occured")
+{
+ setFlashMessage({error:'Need to logged in first as Admin to do this'});
+}
+ 
     }
+  };
+
+//   let getUserData=async()=>{
+//     try{
+// const response=await axios.get(`http://localhost:8080/${user.userId}`);
+// console.log(response.data.status);
+//     }
+//     catch(err){
+//       console.log(err);
+//     }
+//   }
 
     return (
-        <div>
-        <br />
-        {flashMsg.success?<div style={{color:"green"}}>{flashMsg.success}</div>:
-<div style={{color:"red"}}>{flashMsg.error}</div>}
-        <Button style={{marginRight:'5px'}} onClick={handleLogout}>logout</Button>
-            <h1>Zuber khan</h1>
-            <h3>Full Stack Web Developer</h3>
-            <div>
-              <a href="https://www.instagram.com/khan_zuber95?igsh=MTR5YXBmMTM1dWVqcA==" target="_blank"><SiInstagram/></a>
-            &nbsp;&nbsp;
-            <a href="https://github.com/Zuber-Khan95" target="_blank"><FaGithub/></a>&nbsp;&nbsp;
-              <a  href="https://www.linkedin.com/in/zuber-khan-028603336?utm_source=share&utm_compaign=share_via&utm_content=profile&utm_medium-android_app" target="_blank"><TfiLinkedin/></a>&nbsp;&nbsp;
-            
+<div>
+  {flashMessage?.success && <div className="alert alert-success">{flashMessage.success}</div>}
+  {flashMessage?.error && <div className="alert alert-danger">{flashMessage.error}</div>}
+           <div className="hero-section">
+  <h1>Zuber Khan</h1>
+  <h3>Full Stack Web Developer</h3>
+  <div className="social-icons">
+    <a href="https://www.instagram.com/khan_zuber95..." target="_blank"><SiInstagram /></a>
+    <a href="https://github.com/Zuber-Khan95" target="_blank"><FaGithub /></a>
+    <a href="https://www.linkedin.com/in/zuber-khan..." target="_blank"><TfiLinkedin /></a>
+</div>
+
             </div>
         <br />
             <p className='para'>I am a passionate Full Stack MERN Web Developer(MongoDB, Express.js, React.js, Node.js) with a strong focus 
@@ -105,37 +156,32 @@ setFlashMsg({error:"Unable to delete ,Only Admin can delete."});
                 code. I am continously learning new technologies to enhance my skills and deliver high-quality, 
                 scalable digital experiences. 
             </p>
-          
-            {educationData&&
-            <div key='educationData.id'>
-            <h3>Education</h3>
-
-             
-{educationData.map((item,index)=>(
-  <Card className="card">
+              {educationData.length>0 &&
+            <h3>Education</h3>}
+    {educationData.map((item,index)=>(
+  <Card className="card" key={index}>
   
- <Card.Header><span>{item.graduation}</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
- <span>{item.startingYear}-{item.endingYear}</span></Card.Header>
+ <Card.Header style={{ display: 'flex', justifyContent: 'space-between' }}>
+  <span>{item.graduation}</span>
+ <span >{item.startingYear}-{item.endingYear}</span></Card.Header>
  <Card.Body>
    <blockquote className="blockquote mb-0">
      <p>
     {item.specialization}
      </p>
-<Button onClick={()=>{handleDeleteEducation(item._id);}}>Delete</Button>
+     <Button onClick={()=>{handleDeleteEducation(item._id);}}>Delete</Button>
    </blockquote>
  </Card.Body>
 </Card>
-))}    
-</div>} 
+))};
 
-{projectData?<div key='projectData.id'>
-            <h3>Projects</h3>    
-{projectData.map((project,index)=>(
+{projectData.length>0 &&<h3>Projects</h3> } 
+ 
+ {projectData.map((project,index)=>(
   <Card className="card">
   
- <Card.Header><span>{project.title}</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ <Card.Header style={{ display: 'flex', justifyContent: 'space-between' }}>
+  <span>{project.title}</span>
  <span>{project.startingDate.substring(0,10)} to {project.endingDate.substring(0,10)}</span></Card.Header>
  <Card.Body>
    <blockquote className="blockquote mb-0">
@@ -145,13 +191,14 @@ setFlashMsg({error:"Unable to delete ,Only Admin can delete."});
      <p><b>Github Link:</b>
       <a href={project.githubLink} target="_blank">{project.githubLink}</a>
       </p>
-     <Button onClick={()=>{handleDeleteProject(project._id);}}>Delete</Button>
+       <Button onClick={()=>{handleDeleteProject(project._id);}}>Delete</Button>
+     
    </blockquote>
  </Card.Body>
 </Card>
-))}    
-</div>:<div>Loading..</div>}  
+))};
+
 
         </div>
-    )
+    );
 }

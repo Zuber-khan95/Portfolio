@@ -20,6 +20,10 @@ const contactSchema=mongoose.Schema({
     createdAt:{
         type:String,
         default:Date.now()
+    },
+    emailOfOwner:{
+     type:String,
+     required:true
     }
 });
 
