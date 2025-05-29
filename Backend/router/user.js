@@ -48,6 +48,9 @@ if(existUser)
   router.post("/login",async(req,res,next)=>{
     const {email,password}=req.body;
     try{
+       if(!email || !password){
+        throw new ExpressError(400,"Email and password are required");
+      }
 const user=await User.findOne({email:email});
 if(!user)
 {
@@ -64,6 +67,10 @@ const payload={
   role:user.role
 }
 const token=jwt.sign(payload,JWT_SECRET,{expiresIn:'1h'});
+if(!token)
+{
+  throw new ExpressError(404,"Unable to get token ");
+}
 res.json({state:"success",jsonToken:token});
     
     }
@@ -95,19 +102,4 @@ catch(err){
 }
 );
 
-// router.get("/:id",async(req,res,next)=>{
-//     const {id}=req.params;
-//     try{
-//         const user=await User.findById(id);
-//         if(!user){
-//             throw new ExpressError(404,"User not found");
-//         }
-//         console.log(user);
-//         res.json({status:200});
-//       }
-//         catch(err){
-//             next(err);
-//         }
-//       });
-  
   export default router;

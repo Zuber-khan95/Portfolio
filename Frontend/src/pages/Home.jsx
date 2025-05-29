@@ -8,16 +8,18 @@ import { FaGithub } from "react-icons/fa";
 import { SiInstagram } from "react-icons/si";
 import { TfiLinkedin } from "react-icons/tfi";
 import { handleAxiosError } from '../../handleAxiorError.js'
-import { useSelector } from 'react-redux';
+import { useSelector,useDispatch } from 'react-redux';
+import {setSuccess,setError} from '../Redux/flashSlice.js'
+
 export default function Home()
 {
-  const user = useSelector((state) => state.auth.user);
+  
     let [educationData,setEducationData]=useState([]);
     let [projectData,setProjectData]=useState([]);
-      let [flashMessage,setFlashMessage]=useState({
-        success:"",
-        error:""});
     
+    const user = useSelector((state) => state.auth.user);
+    const {success,error}=useSelector((state)=>state.flashMessages);
+    const dispatch=useDispatch();
       const navigate=useNavigate();
     useEffect(()=>{
 getEducationData();
@@ -26,16 +28,15 @@ getProjectData();
     },[educationData]);
 
     useEffect(()=>{
-      if(flashMessage && flashMessage.success ||flashMessage.error)
+      if(success ||error)
       {
       setTimeout(()=>{
-      setFlashMessage({success:"",error:""});
+      dispatch(setSuccess(''));
+      dispatch(setError(''));
     },4000);
       }
    
-    },[flashMessage]);
-
-
+    },[success,error]);
 
     let getEducationData=async()=>{
         await axios.get("http://localhost:8080/education").then((response)=>{
@@ -54,13 +55,12 @@ getProjectData();
         })
     }
 
-
  let handleDeleteEducation=async(itemId)=>{
   try{
     const response=await axios.delete(`http://localhost:8080/education/${itemId}/${user.userId}`);
     console.log(response.data.state);
     if(response.data.state=="success"){
-      setFlashMessage({success:"Successfully Education deleted"});
+      dispatch(setSuccess("Successfully Education deleted"));
 }
 }  
 catch(err){
@@ -69,76 +69,74 @@ catch(err){
 
     if(errorMsg.status===403)
   {
-    setFlashMessage({error:"Only Admin can delete the education"});
+    dispatch(setError("Only Admin can delete the education"));
   }
-
     if(errorMsg.status===404)
   {
-    setFlashMessage({error:"Education or User not found"});
+    dispatch(setError("Education or User not found"));
   }
   if(errorMsg.status===500)
   {
-    setFlashMessage({error:"Server Error or Unable to delete education"});
+    dispatch(setError("Server Error or Unable to delete education"));
   }
   if(errorMsg==="Network Error")
   {
- setFlashMessage({error:"Network Error, No response from server"});
- }
- if(errorMsg==="Unexpected error occured")
+    dispatch(setError("Network Error, No response from server"));
+  }
+  if(errorMsg==="Unexpected error occured")
   {
- setFlashMessage({error:'Need to logged in first as Admin to do this'});
- }
+   dispatch(setError('Need to logged in first as Admin to do this'));
+  }
     }
   };
 
  let handleDeleteProject=async(itemId)=>{
   try{
     let response=await axios.delete(`http://localhost:8080/project/${itemId}/${user.userId}`);
-    if(response.data.state=="success"){
-      setFlashMessage({success:"Successfully Project deleted"});
- 
-}
-}  
+    if(response.data.state=="success") 
+    {
+      dispatch(setSuccess("Successfully Project deleted"));
+    } 
+   }  
 catch(err){
   const errorMsg=handleAxiosError(err);
   if(errorMsg.status===403)
 {
-  setFlashMessage({error:"Only Admin is allowed to do this"});
+  dispatch(setError("Only Admin is allowed to do this"));
 }
   if(errorMsg.status===404)
 {
-  setFlashMessage({error:"Project or User not found so unable to delete"});
+  dispatch(setError("Project or User not found so unable to delete"));
 }
  if(errorMsg.status===500)
-  {
-    setFlashMessage({error:"Server Error or Unable to delete education"});
-  }
+{
+  dispatch(setError("Server Error or Unable to delete education"));
+}
 if(errorMsg==="Network Error")
 {
-   setFlashMessage({error:"Network Error, no response from server side"}); 
+ dispatch(setError("Network Error, no response from server side")); 
 }
 if(errorMsg==="Unexpected error occured")
 {
- setFlashMessage({error:'Need to logged in first as Admin to do this'});
+ dispatch(setError('Need to logged in first as Admin to do this'));
 }
- 
-    }
-  };
+}
+};
 
-//   let getUserData=async()=>{
-//     try{
-// const response=await axios.get(`http://localhost:8080/${user.userId}`);
-// console.log(response.data.status);
-//     }
-//     catch(err){
-//       console.log(err);
-//     }
-//   }
-
+const getdata=async()=>{
+  try{
+const response=await axios.get("http://localhost:8080");
+console.log(response);
+  }
+  catch(err)
+  {
+    console.log(err);
+  }
+}
     return (
 <div>
-  {flashMessage?.success && <div className="alert alert-success">{flashMessage.success}</div>}
-  {flashMessage?.error && <div className="alert alert-danger">{flashMessage.error}</div>}
+  {success && <div className="alert alert-success">{success}</div>}
+  {error && <div className="alert alert-danger">{error}</div>}
            <div className="hero-section">
   <h1>Zuber Khan</h1>
   <h3>Full Stack Web Developer</h3>
@@ -147,8 +145,7 @@ if(errorMsg==="Unexpected error occured")
     <a href="https://github.com/Zuber-Khan95" target="_blank"><FaGithub /></a>
     <a href="https://www.linkedin.com/in/zuber-khan..." target="_blank"><TfiLinkedin /></a>
 </div>
-
-            </div>
+</div>
         <br />
             <p className='para'>I am a passionate Full Stack MERN Web Developer(MongoDB, Express.js, React.js, Node.js) with a strong focus 
                 on building dynamic, responsive, and user-friendly web applications. As a fresher , I thrive 
@@ -197,8 +194,6 @@ if(errorMsg==="Unexpected error occured")
  </Card.Body>
 </Card>
 ))};
-
-
-        </div>
+ </div>
     );
 }

@@ -1,18 +1,14 @@
-import * as React from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import Paper from '@mui/material/Paper';
 import axios from 'axios';
 import { useEffect,useState } from 'react';
 
 const columns = [
-  { field: 'name', headerName: 'Customer Name', width: 180 },
-  { field: 'organisation', headerName: 'Organisation Name', width: 250 },
-  { field: 'mobileNo', headerName: 'Contact Number', width: 180 },
-  { field: 'email', headerName: 'Email of Customer', width: 180},
-  { field: 'message', headerName: 'Message by Customer', width: 380},
-  
-
-
+  { field: 'name', headerName: 'Customer Name', width: 100},
+  { field: 'organisation', headerName: 'Organisation Name', width: 200},
+  { field: 'mobileNo', headerName: 'Contact Number', width: 150 },
+  { field: 'email', headerName: 'Email of Customer', width: 150},
+  { field: 'message', headerName: 'Message by Customer', width: 620 },
 ];
 
 const paginationModel = { page: 0, pageSize: 5 };
@@ -24,7 +20,6 @@ let [rows,setRows]=useState([]);
   const getdata=async()=>{
     try{
 const response=await axios.get("http://localhost:8080/contact");
-console.log(response.data.data);
 if(response.data)
 {
   setData(response.data.data);
@@ -37,9 +32,7 @@ if(response.data)
   }
     useEffect(()=>{
       getdata();
-    
     },[]);
-
 
   useEffect(() => {
     if (data.length > 0) {

@@ -1,22 +1,26 @@
 import React, {useEffect,useState} from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useSelector } from 'react-redux';
+import { useSelector,useDispatch } from 'react-redux';
+import {setError} from '../Redux/flashSlice.js'
+
 
 
 let ProtectedRoutesForAdmin=({ children })=>{
-    const [flashMessage,setFlashMessage]=useState({success:"", error:""});
+   
 
     const user= useSelector((state) => state.auth.user);
     const isAuthenticated = user && user.role==="admin";
     
     const navigate= useNavigate();
+    const dispatch=useDispatch();
 
     useEffect(()=>{
         if(!isAuthenticated){
+            dispatch(setError("Only Admin can do perform these tasks.Need to log in as admin"));
+setTimeout(()=>{dispatch(setError(''))},4000);
  navigate("/login");
 
-setFlashMessage({error:"Only owner can do perform these tasks."});
-setTimeout(()=>{setFlashMessage({error:""});},4000);
+
            
         }
     },[]);

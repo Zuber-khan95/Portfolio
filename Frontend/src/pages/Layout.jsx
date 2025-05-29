@@ -1,20 +1,20 @@
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
-import { useDispatch } from 'react-redux';
 import {Outlet,useNavigate} from 'react-router-dom'
 import Navbar from 'react-bootstrap/Navbar';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
-import { useState } from 'react';
 import { handleAxiosError } from '../../handleAxiorError';
 import {logout} from "../Redux/authSlice"
-import {useSelector} from 'react-redux';
+import {useSelector,useDispatch} from 'react-redux';
+import {setSuccess,setError} from "../Redux/flashSlice.js"
 
 export default function Layout(){
     const user = useSelector((state) => state.auth.user);
+    const {success,error}=useSelector((state)=>state.flashMessages);
   const navigate=useNavigate();
 const dispatch=useDispatch();
-  let [flashMessage,setFlashMessage]=useState({success:"",error:""});
+
 
 let handleLogout=async()=>{ 
   try{
@@ -27,8 +27,7 @@ let handleLogout=async()=>{
     if(res.data.status===200)
     { 
       dispatch(logout());
-      setFlashMessage({success:"Successfully logged out"});
-      setTimeout(()=>{setFlashMessage({success:""});},4000);
+      dispatch(setSuccess("Successfully logged out"));
     setTimeout(()=>{navigate("/");},4000);
     }
   }
@@ -61,8 +60,6 @@ let handleLogout=async()=>{
              </Nav>}
         </Container>
       </Navbar>
-        {flashMessage.success && <div className="alert alert-success">{flashMessage.success}</div>}
-  {flashMessage.error && <div className="alert alert-danger">{flashMessage.error}</div>}
   <Outlet/>
 </div>
   )

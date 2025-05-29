@@ -1,55 +1,47 @@
-import {useState,useEffect} from 'react'
+import {useEffect} from 'react'
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import axios from 'axios';
 axios.defaults.withCredentials = true;
 import {useNavigate} from 'react-router-dom'
-import { useSelector } from 'react-redux';
+import { useSelector,useDispatch } from 'react-redux';
+import {setSuccess,setError} from '../Redux/flashSlice.js'
 import { handleAxiosError } from '../../handleAxiorError';
+import {useForm} from "react-hook-form"
 
 function Contact()
 {
-  const user=useSelector((state)=>state.auth.user);
-  let [FormData,SetFormData]=useState({
+  const {register,handleSubmit,reset}=useForm({
+    defaultValues:{
     name:"",
     organisation:"",
     mobileNo:"",
     message:""
+    }
   });
 
-  let [flashMessage,setFlashMessage]=useState({
-    success:"",
-    error:""
-  });
+    const user=useSelector((state)=>state.auth.user);
+    const {success,error}=useSelector((state)=>state.flashMessages);
+    const dispatch=useDispatch();
 
-  const navigate=useNavigate();
+    const navigate=useNavigate();
 
-  useEffect(()=>{
-if(flashMessage && flashMessage.success ||flashMessage.error)
-{
-  setTimeout(()=>{setFlashMessage({success:"",error:""})},4000);
-}
-  },[flashMessage])
+    useEffect(()=>{
+   if(success ||error) 
+    {
+   setTimeout(()=>{
+   dispatch(setSuccess(''));
+   dispatch(setError(''));
+  },4000);
+  }
+  },[success,error]);
 
-  let HandleFormData=(event)=>{
-    SetFormData((CurrData)=>{
-      return {...CurrData,[event.target.name]:event.target.value};
-    })};
-console.log(user);
-    let HandleForm=async(event)=>{
-      event.preventDefault();
-      console.log(FormData);
-     
+    let onSubmit=async(FormData)=>{
       try{
-    await axios.post(`http://localhost:8080/contact/new/${user.userId}`,FormData);
-      setFlashMessage({success:"Successfully Send your data to Admin"});
+      await axios.post(`http://localhost:8080/contact/new/${user.userId}`,FormData);
+      dispatch(setSuccess("Successfully Send your data to Admin"));
       setTimeout(()=>{navigate('/')},4000);
-      SetFormData({
-    name:"",
-    organisation:"",
-    mobileNo:"",
-    message:""
-      });
+     reset();
      }
 
       catch(err)
@@ -57,77 +49,69 @@ console.log(user);
         const errorMsg=handleAxiosError(err);
         if(errorMsg.status===403)
         {
-         setFlashMessage({error:"You are not our user please logged in on signup first to do this."});
+         dispatch(setError( "You are not our user please logged in or signup first to do this."));
         }
          if(errorMsg.status===404)
         {
-         setFlashMessage({error:"User not found, so you can't do this."});
+         dispatch(setError("User not found, so you can't do this."));
         }
-        if(errorMsg.status===500){
-          setFlashMessage({error:"Server Error"});
+        if(errorMsg.status===500)
+        {
+         dispatch(setError("Server Error"));
         }
          if(errorMsg==='Network Error')
         {
-         setFlashMessage({error:"Network Error , No response from server."});
+         dispatch(setError("Network Error , No response from server."));
         }
-           if(errorMsg==="Unexpected error occured")
-         {
-        setFlashMessage({error:'Some unexpected Error'});
+         if(errorMsg==="Unexpected error occured")
+        {
+         dispatch(setError('Some unexpected Error'));
         }
-       
       }
     };
 
   return (
     <div className="Form">
-  {flashMessage.success && <div className="alert alert-success">{flashMessage.success}</div>}
-  {flashMessage.error && <div className="alert alert-danger">{flashMessage.error}</div>}
+  {success && <div className="alert alert-success">{success}</div>}
+  {error && <div className="alert alert-danger">{error}</div>}
        <h3 style={{textAlign:"",color:"green"}}>Contact Us</h3>
   <div className="ContactForm">
    
-    <form onSubmit={HandleForm}>
+    <form onSubmit={handleSubmit(onSubmit)}>
 
         <TextField label=" Your Name"
+        {...register("name")}
          variant="filled"
-          color="success" 
-          type="text"
-          name="name" 
-          value={FormData.name}
-          onChange={HandleFormData}
-          focused
-          required />
-          <br /><br />
-          <TextField label="Organisation Name"
+         color="success" 
+         type="text"
+         focused
+         required />
+         <br /><br />
+         <TextField label="Organisation Name"
+         {...register("organisation")}
          variant="filled"
-          color="success" 
-          type="text"
-          name="organisation" 
-          value={FormData.organisation}
-          onChange={HandleFormData}
-          focused
-          required />
-          <br /><br />
-          <TextField label="Mobile Number"
+         color="success" 
+         type="text"
+         focused
+         required />
+         <br /><br />
+         <TextField label="Mobile Number"
+         {...register("mobileNo")}
          variant="filled"
-          color="success" 
-          type="text"
-          name="mobileNo" 
-          value={FormData.mobileNo}
-          onChange={HandleFormData}
-          focused
-          required />
-          <br /><br />
-          <TextField label="Enter Your message"
+         color="success" 
+         type="text"
+         focused
+         required />
+         <br /><br />
+         <TextField label="Enter Your message"
+         {...register("message")}
          variant="filled"
          color="success" 
          type="text" 
-         name="message"
-          value={FormData.message}
-          onChange={HandleFormData}
-          focused 
-          required/>
-          <br /><br />
-          <Button variant="contained" color="success"  type="submit">Submit</Button>
+         focused 
+         required/>
+         <br /><br />
+         <Button variant="contained" color="success"  type="submit">Submit</Button>
       </form>
       </div>
       </div>

@@ -1,6 +1,7 @@
 import React, {useEffect,useState} from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useSelector } from 'react-redux';
+import { useSelector,useDispatch } from 'react-redux';
+import {setError} from '../Redux/flashSlice.js'
 
 
 let ProtectedRoutesForUser=({ children })=>{
@@ -10,13 +11,13 @@ let ProtectedRoutesForUser=({ children })=>{
     const isAuthenticated = user && user.role==="user";
     
     const navigate= useNavigate();
-
+    const dispatch=useDispatch();
     useEffect(()=>{
         if(!isAuthenticated){
  navigate("/login");
 
-setFlashMessage({error:"Need to loggedin first to perform these tasks."});
-setTimeout(()=>{setFlashMessage({error:""});},4000);
+dispatch(setError("Only loggedin user can perform these tasks, Admin can not."));
+setTimeout(()=>{dispatch(setError(""));},4000);
            
         }
     },[]);
