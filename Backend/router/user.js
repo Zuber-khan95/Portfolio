@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs'
 import User from '../Model/user.js'
 import 'dotenv/config';
 import jwt from 'jsonwebtoken'
+import {  userSchema } from '../validate.js'
 
 const JWT_SECRET=process.env.JWT_SECRET;
 
@@ -12,9 +13,11 @@ router.post("/register",async(req,res,next)=>{
     let {email,password}=req.body;
     
     try{
-      if(!email || !password){
-        throw new ExpressError(400,"Email and password are required");
-      }
+    const userValidation=userSchema.validate(req.body);
+    if(userValidation.error)  
+    {
+      throw new ExpressError(400,`${userValidation.error}`);
+    }
       if(typeof email!=="string" || typeof password!=="string")
       {
         throw new ExpressError(400,"Email and password should be string");

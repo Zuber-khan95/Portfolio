@@ -8,12 +8,17 @@ import {useForm} from 'react-hook-form'
 import { handleAxiosError } from '../../handleAxiorError'
 import { useSelector,useDispatch } from 'react-redux';
 import { setSuccess,setError } from '../Redux/flashSlice';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { userSchema } from '../../formValidation';
 
 export default function SignUp()
 {
-let {register,handleSubmit,reset}=useForm({defaultValues:{
+let {register,handleSubmit,reset,formState:{errors}}=useForm({
+  resolver:yupResolver(userSchema),
+  defaultValues:{
   email:"",
-  password:""
+  password:"",
+  confirmPassword:""
  }});
 
 const {success,error} =useSelector((state)=>state.flashMessages);
@@ -71,18 +76,30 @@ dispatch(setError(''));
          variant="filled"
           color="success" 
           type="email"
-          name="email" 
           focused
+          fullWidth
          />
+         {errors.email && <p className='error'>{errors.email.message}</p>}
           <br /><br />
-          <TextField label="password"
+          <TextField label="Password"
           {...register("password")}
          variant="filled"
          color="success"
          type="password" 
-         name="password"
          focused
+         fullWidth
           />
+          {errors.password && <p className='error'>{errors.password.message}</p>}
+          <br /><br />
+             <TextField label="Confirm Password"
+          {...register("confirmPassword")}
+         variant="filled"
+         color="success"
+         type="password" 
+         focused
+         fullWidth
+          />
+          {errors.confirmPassword && <p className='error'>{errors.confirmPassword.message}</p>}
           <br /><br />
           <Button variant="contained" color="success" type="submit">SignUp</Button>
       </form>

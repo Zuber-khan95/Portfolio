@@ -8,10 +8,13 @@ import { useSelector,useDispatch } from 'react-redux';
 import {setSuccess,setError} from '../Redux/flashSlice.js'
 import { handleAxiosError } from '../../handleAxiorError';
 import {useForm} from "react-hook-form"
+import { yupResolver } from '@hookform/resolvers/yup';
+import {contactSchema} from '../../formValidation.js';
 
 function Contact()
 {
-  const {register,handleSubmit,reset}=useForm({
+  const {register,handleSubmit,reset,formState:{errors}}=useForm({
+    resolver:yupResolver(contactSchema),
     defaultValues:{
     name:"",
     organisation:"",
@@ -74,7 +77,7 @@ function Contact()
     <div className="Form">
   {success && <div className="alert alert-success">{success}</div>}
   {error && <div className="alert alert-danger">{error}</div>}
-       <h3 style={{textAlign:"",color:"green"}}>Contact Us</h3>
+       <h3 style={{textAlign:"",color:"green"}}>Contact Me</h3>
   <div className="ContactForm">
    
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -85,7 +88,9 @@ function Contact()
          color="success" 
          type="text"
          focused
-         required />
+         fullWidth 
+         />
+         {errors.name && <p className='error'>{errors.name.message}</p>}
          <br /><br />
          <TextField label="Organisation Name"
          {...register("organisation")}
@@ -93,7 +98,9 @@ function Contact()
          color="success" 
          type="text"
          focused
-         required />
+         fullWidth 
+         />
+          {errors.organisation && <p className='error'>{errors.organisation.message}</p>}
          <br /><br />
          <TextField label="Mobile Number"
          {...register("mobileNo")}
@@ -101,7 +108,8 @@ function Contact()
          color="success" 
          type="text"
          focused
-         required />
+         fullWidth />
+          {errors.mobileNo && <p className='error'>{errors.mobileNo.message}</p>}
          <br /><br />
          <TextField label="Enter Your message"
          {...register("message")}
@@ -109,7 +117,9 @@ function Contact()
          color="success" 
          type="text" 
          focused 
-         required/>
+         fullWidth 
+         />
+          {errors.message && <p className='error'>{errors.message.message}</p>}
          <br /><br />
          <Button variant="contained" color="success"  type="submit">Submit</Button>
       </form>

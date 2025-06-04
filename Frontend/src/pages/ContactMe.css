@@ -15,9 +15,3 @@ background: linear-gradient(to right, #F080A1 0%, #FFFFFF 50%, #C39BD3 100%);
     margin-left: auto !important;
     margin-right: auto !important;
 }
-
-.error {
-  color: red;
-  font-size: 0.9rem;
-  margin-top: 5px;
-}

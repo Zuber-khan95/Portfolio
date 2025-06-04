@@ -3,6 +3,8 @@ const router=express.Router();
 import Contact from '../Model/contact.js'
 import User from '../Model/user.js';
 import {isUser} from '../middleware.js'
+import ExpressError from '../ExpressError.js';
+import {contactSchema} from  '../validate.js';
 
 router.get("/",async(req,res,next)=>{
     try{
@@ -18,6 +20,11 @@ res.json({data});
 router.post("/new/:userId",isUser,async(req,res,next)=>{
     const {userId}=req.params;
     try{
+        const contactValidation=contactSchema.validate(req.body);
+        if(contactValidation.error)
+        {
+            throw new ExpressError(400,`${contactValidation.error}`);
+        }
         const user=await User.findById(userId);
         if(!user)
         {

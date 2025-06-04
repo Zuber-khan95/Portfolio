@@ -3,6 +3,8 @@ const router=express.Router();
 import Education from "../Model/education.js";
 import User from "../Model/user.js"
 import {isAdmin} from '../middleware.js'
+import {educationSchema} from '../validate.js'
+import ExpressError from '../ExpressError.js';
 
 
 router.get("/",async(req,res,next)=>{
@@ -18,6 +20,12 @@ res.json({data});
 router.post("/new/:userId",isAdmin,async(req,res,next)=>{
     const {userId}=req.params;
     try{
+     
+        const educationValidation=educationSchema.validate(req.body);
+        if(educationValidation.error)
+        {
+            throw new ExpressError(400,`${educationValidation.error}`);
+        }
         const user=await User.findById(userId);
         if(!user)
         {

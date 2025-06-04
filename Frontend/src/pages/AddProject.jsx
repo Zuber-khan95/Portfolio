@@ -9,17 +9,21 @@ import { useSelector,useDispatch } from 'react-redux';
 import { handleAxiosError } from '../../handleAxiorError';
 import {setSuccess,setError} from '../Redux/flashSlice.js'
 import {useForm} from "react-hook-form"
-// import './AddProject.css'
+import {projectSchema}  from '../../formValidation.js'
+import { yupResolver } from '@hookform/resolvers/yup';
+
 
 export default function AddProject()
 {
-const {register,handleSubmit,reset}=useForm({
+const {register,handleSubmit,reset,formState:{errors}}=useForm({
+  resolver:yupResolver(projectSchema),
   defaultValues:{
   title:"",
     description:"",
     githubLink:"",
     startingDate:"",
-    endingDate:""
+    endingDate:"",
+    skills:""
   }
 });
  
@@ -77,7 +81,7 @@ dispatch(setError(''));
   
       }
     };
-
+   console.log(errors);
   return (
     <div className="Form">
   {success && <div className="alert alert-success">{success}</div>}
@@ -93,7 +97,8 @@ dispatch(setError(''));
           color="success" 
           type="text"
           focused
-          required />
+           fullWidth />
+          {errors.title && <p className="error">{errors.title.message}</p>}
           <br /><br />
           <TextField label="Description"
              {...register("description")}
@@ -101,7 +106,17 @@ dispatch(setError(''));
           color="success" 
           type="text"
           focused
-          required />
+          fullWidth />
+          {errors.description && <p className="error">{errors.description.message}</p>}
+          <br /><br />
+            <TextField label="skills"
+             {...register("skills")}
+         variant="filled"
+          color="success" 
+          type="text"
+          focused
+          fullWidth />
+          {errors.skills && <p className="error">{errors.skills.message}</p>}
           <br /><br />
           <TextField label="Github Link"
              {...register("githubLink")}
@@ -109,7 +124,8 @@ dispatch(setError(''));
           color="success" 
           type="text"
           focused
-          required />
+           fullWidth/>
+          {errors.githubLink && <p className="error">{errors.githubLink.message}</p>}
           <br /><br />
           <TextField label="Starting Date"
              {...register("startingDate")}
@@ -117,7 +133,8 @@ dispatch(setError(''));
          color="success"
          type="date" 
           focused 
-          required/>
+          fullWidth/>
+          {errors.startingDate && <p className="error">{errors.startingDate.message}</p>}
           <br /><br />
           <TextField label="Ending Date"
              {...register("endingDate")}
@@ -125,7 +142,8 @@ dispatch(setError(''));
          color="success"
          type="date" 
           focused 
-          required/>
+           fullWidth/>
+          {errors.endingDate && <p className="error">{errors.endingDate.message}</p>}
           <br /><br />
           <Button variant="contained" color="success" type="submit">Add Project</Button>
       </form>

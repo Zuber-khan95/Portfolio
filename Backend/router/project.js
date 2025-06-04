@@ -3,6 +3,8 @@ const router=express.Router();
 import Project from '../Model/project.js';
 import {isAdmin} from '../middleware.js'
 import User from '../Model/user.js';
+import ExpressError from '../ExpressError.js';
+import {projectSchema} from '../validate.js';
 
 router.get("/",async(req,res,next)=>{
     try{
@@ -18,6 +20,11 @@ res.json({data});
 router.post("/new/:userId",isAdmin,async(req,res,next)=>{
     const {userId}=req.params;
     try{
+         const projectValidation=projectSchema.validate(req.body);
+               if(projectValidation.error)
+               {
+                   throw new ExpressError(400,`${projectValidation.error}`);
+               }
         const user=await User.findById(userId);
         if(!user){
             throw new Error(404,"User not found");
@@ -46,7 +53,6 @@ let {id,userId}=req.params;
             throw new Error(404,"User not found");
         }
         const index=user.projects.indexOf(project._id);
-        console.log(index,project,user);
         if(index>-1){
             user.projects.splice(index,1);
         }

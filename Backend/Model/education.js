@@ -10,6 +10,10 @@ const educationSchema=mongoose.Schema({
         type:String,
         required:true,
     },
+    university:{
+        type:String,
+        required:true,
+    },
     startingYear:{
         type:Number,
         required:true

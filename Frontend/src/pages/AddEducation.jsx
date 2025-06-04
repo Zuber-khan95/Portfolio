@@ -9,6 +9,8 @@ import './AddEducation.css'
 import {useSelector,useDispatch} from "react-redux";
 import {handleAxiosError}  from '../../handleAxiorError';
 import {setSuccess,setError} from '../Redux/flashSlice.js'
+import {educationSchema} from '../../formValidation.js'
+import {yupResolver} from '@hookform/resolvers/yup';
 import {useForm} from 'react-hook-form'
 
 
@@ -18,12 +20,14 @@ export default function AddEducation()
   const { success,error }=useSelector((state)=>state.flashMessages);
   const dispatch=useDispatch();
   
-const {register,handleSubmit,reset}=useForm({
+const {register,handleSubmit,reset,formState:{errors}}=useForm({
+resolver:yupResolver(educationSchema),
   defaultValues:{
     graduation:"",
+    university:"",
     specialization:"",
-    startingYear:"",
-    endingYear:""
+    startingYear:1900,
+    endingYear:1900
   }
 })
 
@@ -40,6 +44,7 @@ useEffect(()=>{
 
     let onSubmit=async(FormData)=>{
       try{
+        console.log(FormData);
 const response=await axios.post(`http://localhost:8080/education/new/${user.userId}`,FormData);
     if(response.data.state=="success")
      {
@@ -87,31 +92,46 @@ const response=await axios.post(`http://localhost:8080/education/new/${user.user
           color="success" 
           type="text"
           focused
-          required />
+            fullWidth />
+            {errors.graduation && <p className="error">{errors.graduation.message}</p>}
+          <br /><br />
+              <TextField label="University Name"
+        {...register("university")}
+         variant="filled"
+          color="success" 
+          type="text"
+          focused
+          fullWidth />
+          {errors.university && <p className="error">{errors.university.message}</p>}
           <br /><br />
           <TextField label="Specialization"
            {...register("specialization")}
          variant="filled"
           color="success" 
-          type="text"
+          type='text'
           focused
-          required />
+          fullWidth />
+          {errors.specialization && <p className="error" >{errors.specialization.message}</p>}
           <br /><br />
           <TextField label="Starting Year"
            {...register("startingYear")}
-         variant="filled"
-         color="success"
-         type="text" 
+          variant="filled"
+          color="success"
+          type="number" 
           focused 
-          required/>
+          fullWidth 
+          />
+          {errors.startingYear && <p className="error" >{errors.startingYear.message}</p>}
           <br /><br />
           <TextField label="Ending Year"
            {...register("endingYear")}
-         variant="filled"
-         color="success"
-         type="text" 
+          variant="filled"
+          color="success"
+          type="number" 
           focused 
-          required/>
+          fullWidth 
+          />
+          {errors.endingYear && <p className="error" >{errors.endingYear.message}</p>}
           <br /><br />
           <Button variant="contained" color="success" type="submit">Add Education</Button>
       </form>

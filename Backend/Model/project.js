@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import { TfiYoutube } from 'react-icons/tfi';
 
 const projectSchema=mongoose.Schema({
     title:{
@@ -10,6 +11,10 @@ const projectSchema=mongoose.Schema({
         type:String,
         required:true
     },
+skills:{
+type:[String],
+required:true,
+},
     githubLink:{
         type:String,
         required:true

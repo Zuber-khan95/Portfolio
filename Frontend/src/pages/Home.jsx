@@ -24,9 +24,11 @@ export default function Home()
     useEffect(()=>{
 getEducationData();
 getProjectData();
+
 // getUserData();
     },[educationData]);
 
+  
     useEffect(()=>{
       if(success ||error)
       {
@@ -133,67 +135,64 @@ console.log(response);
     console.log(err);
   }
 }
+
+console.log(projectData);
     return (
 <div>
   {success && <div className="alert alert-success">{success}</div>}
   {error && <div className="alert alert-danger">{error}</div>}
-           <div className="hero-section">
-  <h1>Zuber Khan</h1>
+  <div className="hero-section">
+  <h1>Hello, I'm Zuber khan</h1>
   <h3>Full Stack Web Developer</h3>
   <div className="social-icons">
     <a href="https://www.instagram.com/khan_zuber95..." target="_blank"><SiInstagram /></a>
     <a href="https://github.com/Zuber-Khan95" target="_blank"><FaGithub /></a>
     <a href="https://www.linkedin.com/in/zuber-khan..." target="_blank"><TfiLinkedin /></a>
 </div>
-</div>
-        <br />
-            <p className='para'>I am a passionate Full Stack MERN Web Developer(MongoDB, Express.js, React.js, Node.js) with a strong focus 
-                on building dynamic, responsive, and user-friendly web applications. As a fresher , I thrive 
-                on turning creative ideas into real world solutions through clean, efficient, and maintainable
-                code. I am continously learning new technologies to enhance my skills and deliver high-quality, 
-                scalable digital experiences. 
-            </p>
-              {educationData.length>0 &&
-            <h3>Education</h3>}
-    {educationData.map((item,index)=>(
-  <Card className="card" key={index}>
-  
- <Card.Header style={{ display: 'flex', justifyContent: 'space-between' }}>
-  <span>{item.graduation}</span>
- <span >{item.startingYear}-{item.endingYear}</span></Card.Header>
- <Card.Body>
-   <blockquote className="blockquote mb-0">
-     <p>
-    {item.specialization}
-     </p>
-     <Button onClick={()=>{handleDeleteEducation(item._id);}}>Delete</Button>
-   </blockquote>
- </Card.Body>
-</Card>
-))};
+ </div>
 
-{projectData.length>0 &&<h3>Projects</h3> } 
- 
- {projectData.map((project,index)=>(
-  <Card className="card">
-  
- <Card.Header style={{ display: 'flex', justifyContent: 'space-between' }}>
-  <span>{project.title}</span>
- <span>{project.startingDate.substring(0,10)} to {project.endingDate.substring(0,10)}</span></Card.Header>
- <Card.Body>
-   <blockquote className="blockquote mb-0">
-     <p>
-    {project.description}
-     </p>
-     <p><b>Github Link:</b>
-      <a href={project.githubLink} target="_blank">{project.githubLink}</a>
-      </p>
-       <Button onClick={()=>{handleDeleteProject(project._id);}}>Delete</Button>
-     
-   </blockquote>
- </Card.Body>
-</Card>
+ {/* This is our skill section  */} 
+       <div className='skills-section'>
+       <h2>Skills</h2>
+       <br />
+<div>HTML</div> <div>CSS</div> <div>JavaScript</div> <div>React</div> <div>Node.js</div>
+<div>MongoDB</div> <div>Express.js</div><div>BootStrap</div><div>Git</div><div>Redux</div>
+       </div>
+
+ {/* This is our education section */}
+<div className="education-section">
+   {educationData.length>0 && <h2>Education</h2>}
+   <div className="education-cards" >
+    {educationData.map((education,index)=>(
+      <div className="education-card" key={index}>
+      <h4>{education.graduation}</h4>
+      <p>{education.university},  {education.startingYear}-{education.endingYear}</p>
+      <p>{education.specialization}</p>
+      <Button onClick={()=>{handleDeleteEducation(education._id);}}>Delete</Button>
+      </div>
 ))};
+</div>
+</div>
+
+{/* This is our project section */}
+<div className="project-section">
+   {projectData.length>0 && <h2>Projects</h2>}
+   <div className="project_cards">
+    {projectData.map((project,index)=>(
+      <div className="project_card" key={index}>
+      <h4>{project.title}</h4>
+      <p>{project.skills}</p>
+      <p>From {project.startingDate.substr(0,10)} to {project.endingDate.substr(0,10)}</p>
+      <p>{project.description}</p>
+      <a href={project.githubLink} target='_blank'>View Project</a>
+      <br />
+      <Button onClick={()=>{handleDeleteProject(project._id);}}>Delete</Button>
+      </div>
+))};
+</div>
+</div>
+
+
  </div>
     );
 }

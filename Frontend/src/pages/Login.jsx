@@ -5,7 +5,6 @@ import axios from 'axios'
 axios.defaults.withCredentials = true;
 import {useNavigate} from 'react-router-dom'
 import {useForm} from 'react-hook-form'
-import './Login.css'
 import { handleAxiosError } from '../../handleAxiorError';
 import {loginSuccess} from "../Redux/authSlice"
 import {setSuccess,setError} from '../Redux/flashSlice';
@@ -19,9 +18,8 @@ export default function LogIn()
   password:""
  }});
   const { success, error } = useSelector((state) => state.flashMessages);
-    const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
-  
     useEffect(() => {
     if (success || error) {
   setTimeout(()=>{
@@ -32,9 +30,7 @@ dispatch(setError(''));
 
     const navigate=useNavigate();
  
-
     let onSubmit=async(formData)=>{
-   
       try{
         const response=await axios.post("http://localhost:8080/login",formData);
         const token=response.data.jsonToken;
@@ -85,6 +81,7 @@ dispatch(setError(''));
           type="email"
           name="email"
           focused
+          fullWidth
          />
           <br /><br />
           <TextField label="password"
@@ -93,7 +90,8 @@ dispatch(setError(''));
          color="success"
          type="password" 
          name="password"
-          focused 
+         focused 
+         fullWidth
           />
           <br /><br />
           <Button variant="contained" color="success" type="submit">Login</Button>
